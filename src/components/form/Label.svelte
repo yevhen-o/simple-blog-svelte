@@ -1,0 +1,49 @@
+<script lang="ts">
+	import classNames from 'classnames';
+	let forId;
+	export { forId as for };
+
+	export let isInField = false;
+	export let isFocused = false;
+	export let isFilled = false;
+</script>
+
+<label
+	class={classNames('custom-label', {
+		'custom-label--in-field': isInField,
+		'custom-label--focused': isFocused,
+		'custom-label--filled': isFilled
+	})}
+	for={forId}
+>
+	<slot />
+</label>
+
+<style lang="scss">
+	.custom-label {
+		color: var(--color--text-03);
+
+		&--in-field {
+			padding: 0.75rem 1rem 0.125rem 1rem;
+			background-color: transparent;
+			border-top-left-radius: 6px;
+			border-top-right-radius: 6px;
+			margin: 0;
+			width: 100%;
+			font-family: IBM Plex Sans;
+			font-style: normal;
+			font-weight: 600;
+			font-size: 12px;
+			line-height: 14px;
+			display: flex;
+			align-items: center;
+			letter-spacing: 0.14px;
+			text-transform: uppercase;
+			color: #6f6f6f;
+		}
+
+		&--focused {
+			color: var(--color--focus);
+		}
+	}
+</style>
