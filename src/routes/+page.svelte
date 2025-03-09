@@ -1,6 +1,3 @@
-<svelte:head>
-	<title>Simple blog with ssr on sveltekit</title>
-</svelte:head>
 <h1>Welcome to SvelteKit</h1>
 <div>
 	<br />
