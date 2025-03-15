@@ -1,9 +1,10 @@
 <script lang="ts">
 	import BackButtonHeading from '@src/components/BackButtonHeading.svelte';
 	import TagList from '@src/components/TagList.svelte';
+	import type { PostInterface } from '@src/types/PostInterface';
 
 	import { countCommas as countCommasFn, countDots as countDotsFn } from '@src/utils';
-	export let article;
+	export let article: PostInterface;
 	const { title, content, author, tags, countCommas, countDots } = article;
 </script>
 

@@ -6,4 +6,4 @@
 	$: blog = data.blog;
 </script>
 
-<BlogArticle article={blog} />
+<BlogArticle article={Object.values(blog)[0]} />

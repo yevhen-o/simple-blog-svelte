@@ -8,7 +8,7 @@
 
 <h1>List of articles</h1>
 <ListWrapper>
-	{#each Object.values(data.blogs) as value (value.id)}
+	{#each Object.values(data.blogs) as value (value.slug)}
 		<BlogItem item={value} />
 	{/each}
 </ListWrapper>

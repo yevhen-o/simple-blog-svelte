@@ -1,14 +1,16 @@
 <script lang="ts">
 	import Tag from './Tag.svelte';
-	export let tags: string[];
+	export let tags: string[] | undefined;
 </script>
 
-<div class="tags-list__wrapper">
-	<strong>List of tags:</strong>
-	{#each tags as tag (tag)}
-		<Tag>{tag}</Tag>
-	{/each}
-</div>
+{#if tags}
+	<div class="tags-list__wrapper">
+		<strong>List of tags:</strong>
+		{#each tags as tag (tag)}
+			<Tag>{tag}</Tag>
+		{/each}
+	</div>
+{/if}
 
 <style lang="scss">
 	.tags-list__wrapper {

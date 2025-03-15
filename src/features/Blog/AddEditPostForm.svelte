@@ -22,7 +22,7 @@
 		tags: ''
 	};
 
-	const schema = PostValidationSchema.omit({ tags: true }).extend({
+	const schema = PostValidationSchema.omit({ tags: true, authorId: true, createdAt: true }).extend({
 		tags: z.string()
 	});
 
@@ -30,20 +30,20 @@
 	let slugIsUsed = false;
 
 	$: title = $data.title;
-	$: slug = $data.id;
+	$: slug = $data.slug;
 
 	const validateSlug = async () => {
 		const isInUse = await isSlugInUse(slug);
 		if (isInUse) {
-			setErrors('id', 'This slug already in use');
-			touchedFields = { ...touchedFields, id: true };
+			setErrors('slug', 'This slug already in use');
+			touchedFields = { ...touchedFields, slug: true };
 		}
 		slugIsUsed = isInUse;
 	};
 
 	const createSlug = async () => {
 		if (hasCustomSlug || !title) return;
-		setData('id', titleToSlug(title));
+		setData('slug', titleToSlug(title));
 		await tick();
 		validateSlug();
 	};
@@ -56,10 +56,17 @@
 		onChange: true,
 		onInput: true,
 		initialValues: initialValues,
-		onSubmit: async (values: Omit<PostInterface, 'tags'> & { tags: string }) => {
+		onSubmit: async (
+			values: Omit<PostInterface, 'tags' | 'createdAt' | 'authorId'> & { tags: string }
+		) => {
 			try {
 				isSubmitting = true;
-				await postNewBlog({ ...values, tags: values.tags.split(' ') });
+				await postNewBlog({
+					...values,
+					tags: values.tags.split(' '),
+					authorId: $user!.uid,
+					createdAt: Date.now().toString()
+				});
 				goto(getUrl(IDENTIFIERS.BLOG));
 			} catch (error) {
 				if (error instanceof Error) {
@@ -98,12 +105,12 @@
 
 	<InputField
 		placeholder="Slug"
-		name="id"
-		bind:value={$data.id}
+		name="slug"
+		bind:value={$data.slug}
 		on:input={validateSlug}
 		on:blur={validateSlug}
 		on:blur={handleBlur}
-		isTouched={touchedFields.id}
+		isTouched={touchedFields.slug}
 		error={slugIsUsed ? 'This slug already in use' : ''}
 	/>
 	<InputField

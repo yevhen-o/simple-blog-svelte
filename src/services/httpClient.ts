@@ -1,8 +1,11 @@
 import { ZodSchema } from 'zod';
-import type { PostInterface, FirebasePostInterface } from '../types/PostInterface';
-import type { UserInterface } from '../types/UserInterface';
-import { PostValidationSchema, FirebasePostsSchema } from '../types/PostInterface';
-import { UserValidationSchema, UserListValidationSchema } from '../types/UserInterface';
+
+import { FirebasePostsSchema, type FirebasePostInterface } from '../types/PostInterface';
+import {
+	type UserInterface,
+	UserValidationSchema,
+	UserListValidationSchema
+} from '../types/UserInterface';
 
 // use env by default
 const baseUrl = ''; //"http://localhost:3000/api";
@@ -55,9 +58,9 @@ export const getBlogPosts = async () => {
 };
 
 export const getBlogBySlug = async (slug: string) => {
-	return await httpClient<PostInterface>(
-		`https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app/blogs/${slug}.json`,
-		PostValidationSchema
+	return await httpClient<FirebasePostInterface>(
+		`https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app/blogs.json?orderBy="slug"&equalTo="${slug}"`,
+		FirebasePostsSchema
 	);
 };
 
@@ -70,9 +73,9 @@ export const getUsers = async () => {
 	);
 };
 
-export const getUserById = async (userId: string) => {
+export const getUserById = async (id: number) => {
 	return await httpClient<UserInterface>(
-		`https://jsonplaceholder.typicode.com/users/${userId}`,
+		`https://jsonplaceholder.typicode.com/users/${id}`,
 		UserValidationSchema
 	);
 };

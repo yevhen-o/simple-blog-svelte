@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { PostInterface } from '@src/types/PostInterface';
 	import { getUrl, IDENTIFIERS, Link } from '@src/utils';
-	export let item: Pick<PostInterface, 'title' | 'author' | 'id'>;
+	export let item: Pick<PostInterface, 'title' | 'author' | 'slug'>;
 </script>
 
 <div class="blog-item__wrapper">
 	<Link
 		href={getUrl(IDENTIFIERS.BLOG_VIEW, {
-			slug: item.id
+			slug: item.slug
 		})}
 	>
 		<h2>{item.title}</h2>

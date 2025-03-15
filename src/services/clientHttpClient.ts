@@ -1,10 +1,11 @@
-import type { ZodSchema } from 'zod';
+'use client';
+import { ZodSchema } from 'zod';
 import { getAuth } from 'firebase/auth';
-import type { PostInterface } from '../types/PostInterface';
-import { PostValidationSchema } from '../types/PostInterface';
+
+import { type PostInterface, PostValidationSchema } from '../types/PostInterface';
 
 // use env by default
-const baseUrl = ''; //"http://localhost:3000/api";
+const baseUrl = 'https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app'; //"http://localhost:3000/api";
 
 export type AdditionalRequestOption<T> = {
 	successMessage?: string;
@@ -28,7 +29,7 @@ const httpClient = async <T>(
 ) => {
 	const user = getAuth().currentUser;
 	const token = await user?.getIdToken();
-	const response = await fetch(`${baseUrl}${url}?auth=${token}`, {
+	const response = await fetch(`${baseUrl}${url}${url.includes('?') ? '&' : '?'}auth=${token}`, {
 		method: options?.method || 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -53,19 +54,15 @@ const httpClient = async <T>(
 };
 
 export const isSlugInUse = async (slug: string) => {
-	const post = await httpClient<boolean>(
-		`https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app/blogs/${slug}.json`
-	);
-	return !!post;
+	const post = await httpClient<boolean>(`/blogs.json?orderBy="slug"&equalTo="${slug}"`);
+	console.log(post);
+	console.log(Object.keys(post).length);
+	return !!Object.keys(post).length;
 };
 
-export const postNewBlog = async (data: PostInterface) => {
-	return await httpClient(
-		`https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app/blogs/${data.id}.json`,
-		PostValidationSchema,
-		{
-			method: 'PUT',
-			body: JSON.stringify(data)
-		}
-	);
+export const postNewBlog = async (data: Omit<PostInterface, 'id'>) => {
+	return await httpClient(`/blogs.json`, PostValidationSchema, {
+		method: 'POST',
+		body: JSON.stringify(data)
+	});
 };
