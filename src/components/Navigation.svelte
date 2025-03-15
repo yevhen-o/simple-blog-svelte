@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getUrl, IDENTIFIERS } from '@src/utils';
+	import { getUrl, IDENTIFIERS, Link } from '@src/utils';
 	import { page } from '$app/state';
 	import UserMenu from '@src/features/authentication/UserMenu.svelte';
 
@@ -17,12 +17,15 @@
 
 <div class="top-navigation__wrapper">
 	<nav>
+		<Link href={getUrl(IDENTIFIERS.HOME)} class="logo">
+			<img src="/favicon.png" alt="svelte logo" />
+		</Link>
 		{#each items as { link, title, className }}
 			<a href={link} class="{className} {page.route.id === link ? 'active' : ''}">
 				{title}
 			</a>
 		{/each}
-		<div style="margin-left: auto">
+		<div style="margin-left: auto;  align-self: center;">
 			<UserMenu />
 		</div>
 	</nav>
@@ -48,6 +51,8 @@
 		& > nav a {
 			padding: var(--spacer-sm) var(--spacer-gn);
 			text-decoration: none;
+			display: flex;
+			align-items: center;
 
 			&.active {
 				background-color: var(--color-gray-50);
@@ -56,6 +61,11 @@
 			&.primary:not(.active) {
 				background-color: var(--color-primary);
 				color: var(--color-gray-0);
+			}
+		}
+		:global {
+			a.logo img {
+				max-height: 40px;
 			}
 		}
 	}

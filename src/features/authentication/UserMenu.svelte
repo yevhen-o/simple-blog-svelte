@@ -20,7 +20,7 @@
 	};
 </script>
 
-<div style="margin-left: auto">
+<div style="margin-left: auto;">
 	{#if $user}
 		<DropDown {options} class="user-menu">
 			{$user.email}
