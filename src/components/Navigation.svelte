@@ -39,6 +39,7 @@
 		gap: var(--spacer-sm);
 		background-color: var(--color-gray-25);
 		margin-bottom: var(--spacer-default);
+		z-index: 1;
 
 		& > nav {
 			display: flex;
@@ -55,7 +56,8 @@
 			align-items: center;
 
 			&.active {
-				background-color: var(--color-gray-50);
+				background-color: var(--color-gray-75);
+				color: var(--color-gray-0);
 			}
 
 			&.primary:not(.active) {
