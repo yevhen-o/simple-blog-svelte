@@ -1,11 +1,13 @@
 import { ZodSchema } from 'zod';
 
-import { FirebasePostsSchema, type FirebasePostInterface } from '../types/PostInterface';
 import {
 	type UserInterface,
 	UserValidationSchema,
 	UserListValidationSchema
 } from '../types/UserInterface';
+import supabase from './supabase';
+import type { PostInterface } from '@src/types/PostInterface';
+import type { PostAuthorCreateInterface } from '@src/types/AuthorInterface';
 
 // use env by default
 const baseUrl = ''; //"http://localhost:3000/api";
@@ -51,17 +53,115 @@ const httpClient = async <T>(
 };
 
 export const getBlogPosts = async () => {
-	return await httpClient<FirebasePostInterface>(
-		'https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app/blogs.json',
-		FirebasePostsSchema
-	);
+	const { data } = await supabase
+		.from('blog-posts')
+		.select(
+			`
+        slug,
+        title,
+        author_id,
+        image_url,
+        tags,
+        author:author_id (
+          first_name,
+          last_name
+        )
+      `
+		)
+		.order('created_at', { ascending: false });
+	return data;
 };
 
 export const getBlogBySlug = async (slug: string) => {
-	return await httpClient<FirebasePostInterface>(
-		`https://myblog-1c34a-default-rtdb.europe-west1.firebasedatabase.app/blogs.json?orderBy="slug"&equalTo="${slug}"`,
-		FirebasePostsSchema
-	);
+	const { data } = await supabase
+		.from('blog-posts')
+		.select(
+			`
+      *,
+      author:author_id (
+        first_name,
+        last_name
+      )
+      `
+		)
+		.eq('slug', slug)
+		.single();
+	return data as PostInterface;
+};
+
+export const hasAuthorProfile = async (author_id: string): Promise<boolean> => {
+	const { data, error } = await supabase
+		.from('blog-authors')
+		.select('id')
+		.eq('author_id', author_id)
+		.maybeSingle();
+
+	if (error) {
+		return false;
+	}
+
+	return !!data;
+};
+
+export const isSlugInUse = async (slug: string): Promise<boolean> => {
+	const { data, error } = await supabase
+		.from('blog-posts')
+		.select('id')
+		.eq('slug', slug)
+		.maybeSingle();
+
+	if (error) {
+		return false;
+	}
+
+	return !!data;
+};
+
+export const postNewBlog = async (
+	data: Omit<PostInterface, 'id' | 'created_at' | 'author'> & {
+		image?: File | null;
+	}
+) => {
+	if (data.image) {
+		const imageUrl = await uploadImage(data.image);
+		if (imageUrl) {
+			data.image_url = imageUrl;
+		}
+	}
+	delete data.image;
+
+	const { data: result } = await supabase.from('blog-posts').insert([data]).select();
+	return result;
+};
+
+export const uploadImage = async (file: File): Promise<string | null> => {
+	const fileName = `${Date.now()}-${file.name}`;
+	const { error } = await supabase.storage.from('blog-images').upload(fileName, file);
+
+	if (error) {
+		console.error('Error uploading image:', error);
+		return null;
+	}
+
+	return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/blog-images/${fileName}`;
+};
+
+export const createAuthorProfile = async (
+	data: PostAuthorCreateInterface & {
+		image?: File | null;
+		author_id: string;
+	}
+) => {
+	if (data.image) {
+		const imageUrl = await uploadImage(data.image);
+		if (imageUrl) {
+			data.image_url = imageUrl;
+		}
+	}
+	delete data.image;
+
+	const { data: result } = await supabase.from('blog-authors').insert([data]).select();
+	return result;
 };
 
 // User routes can be in their own file httpClient also goes to it own file in this case

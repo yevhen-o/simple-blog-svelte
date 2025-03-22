@@ -4,7 +4,7 @@
 	import { validator } from '@felte/validator-zod';
 
 	import Button from '@src/components/Button.svelte';
-	import { signUp, login } from '@src/services/firebase/auth';
+	import { authActions } from '@src/stores/authStore';
 	import InputField from '@src/components/form/InputField.svelte';
 
 	export let onAuthenticate: () => void;
@@ -28,9 +28,9 @@
 			try {
 				isSubmitting = true;
 				if (isLogin) {
-					await login(values.email, values.password);
+					await authActions.login(values.email, values.password);
 				} else {
-					await signUp(values.email, values.password);
+					await authActions.signUp(values.email, values.password);
 				}
 				onAuthenticate();
 			} catch (error) {

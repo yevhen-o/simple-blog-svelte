@@ -5,24 +5,30 @@
 	import { goto } from '$app/navigation';
 	import { validator } from '@felte/validator-zod';
 
-	import { user } from '@src/stores/authStore';
+	import { authStore } from '@src/stores/authStore';
 	import Button from '@src/components/Button.svelte';
 	import InputField from '@src/components/form/InputField.svelte';
-	import { getUrl, IDENTIFIERS, maskEmail, titleToSlug } from '@src/utils';
-	import { isSlugInUse, postNewBlog } from '@src/services/clientHttpClient';
+	import { getUrl, IDENTIFIERS, titleToSlug } from '@src/utils';
+	import { isSlugInUse, postNewBlog } from '@src/services/httpClient';
 	import { PostValidationSchema, type PostInterface } from '@src/types/PostInterface';
+	import FileUploader from '@src/components/form/FileUploader.svelte';
 
 	let isSubmitting = false;
+	$: ({ user } = $authStore);
 
 	let initialValues = {
 		title: '',
-		id: '',
 		content: '',
-		author: maskEmail($user?.email || ''),
 		tags: ''
 	};
+	let selectedImage: File | null = null;
 
-	const schema = PostValidationSchema.omit({ tags: true, authorId: true, createdAt: true }).extend({
+	const schema = PostValidationSchema.omit({
+		tags: true,
+		author_id: true,
+		created_at: true,
+		author: true
+	}).extend({
 		tags: z.string()
 	});
 
@@ -57,15 +63,17 @@
 		onInput: true,
 		initialValues: initialValues,
 		onSubmit: async (
-			values: Omit<PostInterface, 'tags' | 'createdAt' | 'authorId'> & { tags: string }
+			values: Omit<PostInterface, 'id' | 'tags' | 'created_at' | 'author' | 'image_url'> & {
+				tags: string;
+			}
 		) => {
 			try {
 				isSubmitting = true;
 				await postNewBlog({
 					...values,
 					tags: values.tags.split(' '),
-					authorId: $user!.uid,
-					createdAt: Date.now().toString()
+					image: selectedImage,
+					author_id: user!.id
 				});
 				goto(getUrl(IDENTIFIERS.BLOG));
 			} catch (error) {
@@ -90,9 +98,14 @@
 	const setAllFieldsTouched = () => {
 		touchedFields = Object.keys(initialValues).reduce((acc, key) => ({ ...acc, [key]: true }), {});
 	};
+
+	const onImageChange = (file: File | null) => {
+		selectedImage = file;
+	};
 </script>
 
 <form use:form class="add-post-form">
+	<FileUploader {onImageChange} />
 	<InputField
 		placeholder="Title"
 		name="title"
@@ -121,15 +134,6 @@
 		on:blur={handleBlur}
 		isTouched={touchedFields.content}
 		error={$errors?.content?.[0]}
-	/>
-	<InputField
-		placeholder="Author"
-		name="author"
-		disabled
-		bind:value={$data.author}
-		on:blur={handleBlur}
-		isTouched={touchedFields.author}
-		error={$errors?.author?.[0]}
 	/>
 	<InputField
 		placeholder="Tags separated by space"

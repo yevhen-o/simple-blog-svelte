@@ -1,15 +1,14 @@
 <script lang="ts">
 	import Button from '@src/components/Button.svelte';
 	import DropDown from '@src/components/DropDown.svelte';
-	import { user } from '@src/stores/authStore';
-	import { logout } from '@src/services/firebase/auth';
+	import { authActions, authStore } from '@src/stores/authStore';
 	import AuthModal from './AuthModal.svelte';
 
 	const options = [
 		{
 			label: 'Log out',
 			value: 'logout',
-			onClick: logout
+			onClick: authActions.logOut
 		}
 	];
 
@@ -18,12 +17,14 @@
 	const setHasAuthModalShown = (v: boolean) => {
 		isAuthModalShown = v;
 	};
+
+	$: ({ user } = $authStore);
 </script>
 
 <div style="margin-left: auto;">
-	{#if $user}
+	{#if user}
 		<DropDown {options} class="user-menu">
-			{$user.email}
+			{user.email}
 		</DropDown>
 	{:else}
 		<div>

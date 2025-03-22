@@ -1,7 +1,8 @@
 <script lang="ts">
 	import classNames from 'classnames';
 
-	export let className = '';
+	let className = '';
+	export { className as class };
 	export let isFlat = false;
 	export let isPrimary = false;
 	export let disabled = false;

@@ -60,7 +60,7 @@
 			position: absolute;
 			right: 2px;
 			top: 100%;
-			background-color: var(--border-style);
+			background-color: var(--color-gray-0);
 			color: var(--primary-text-color);
 
 			border: var(--border-style);
@@ -71,7 +71,7 @@
 
 			& > * {
 				all: unset;
-				padding: var(--spacer-xs) var(--spacer-sm);
+				padding: var(--spacer-sm) var(--spacer-df);
 				white-space: nowrap;
 				cursor: pointer;
 				display: flex;
